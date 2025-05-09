@@ -13,8 +13,20 @@ export interface Booking {
   createdAt: Date;
 }
 
+// Interface for Firebase document structure (using Timestamp instead of Date)
+interface FirestoreBooking {
+  date: Timestamp;
+  time: string;
+  name: string;
+  email: string;
+  meetingType: string;
+  notes?: string;
+  createdAt: Timestamp;
+}
+
 export const addBooking = async (booking: Omit<Booking, 'id' | 'createdAt'>) => {
-  const bookingWithTimestamp = {
+  // Convert Date to Timestamp for Firebase
+  const bookingWithTimestamp: Omit<FirestoreBooking, 'id'> = {
     ...booking,
     date: Timestamp.fromDate(booking.date),
     createdAt: Timestamp.fromDate(new Date())
@@ -46,8 +58,8 @@ export const getBookings = async () => {
 export const updateBooking = async (id: string, updatedBooking: Partial<Booking>) => {
   const bookingRef = doc(db, 'bookings', id);
   
-  // Convert Date to Timestamp for Firebase
-  const bookingData = { ...updatedBooking };
+  // Convert Date to Timestamp for Firebase if it exists
+  const bookingData: Partial<FirestoreBooking> = { ...updatedBooking };
   
   // Check if date exists before converting to Timestamp
   if (bookingData.date instanceof Date) {

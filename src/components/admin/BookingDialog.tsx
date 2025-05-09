@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -67,10 +66,18 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
 
     try {
       if (mode === 'add') {
-        await addBooking({
+        // Ensure all required fields are provided
+        const newBooking = {
           ...data,
           date,
-        });
+          // Explicitly including required fields to satisfy TypeScript
+          name: data.name,
+          email: data.email,
+          meetingType: data.meetingType,
+          time: data.time
+        };
+        
+        await addBooking(newBooking);
         toast({
           title: "Booking added",
           description: "New booking has been successfully created",
