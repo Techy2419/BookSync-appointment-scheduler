@@ -3,19 +3,18 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { CalendarPlus } from 'lucide-react';
 
 interface CalendarSyncProps {
   onSyncWithGoogle: (authCode?: string) => Promise<void>;
-  onSyncWithApple: (calendarUrl: string) => Promise<void>;
+  onSyncWithApple: () => Promise<void>;
 }
 
 const CalendarSync: React.FC<CalendarSyncProps> = ({ onSyncWithGoogle, onSyncWithApple }) => {
   const { toast } = useToast();
-  const [appleCalendarUrl, setAppleCalendarUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [activeProvider, setActiveProvider] = useState<'google' | 'apple'>('google');
 
   const handleGoogleAuth = async () => {
     setIsLoading(true);
@@ -25,6 +24,7 @@ const CalendarSync: React.FC<CalendarSyncProps> = ({ onSyncWithGoogle, onSyncWit
         title: "Connected to Google Calendar",
         description: "Your bookings will now sync with Google Calendar.",
       });
+      setActiveProvider('google');
     } catch (error) {
       toast({
         title: "Failed to connect",
@@ -39,16 +39,16 @@ const CalendarSync: React.FC<CalendarSyncProps> = ({ onSyncWithGoogle, onSyncWit
   const handleAppleCalendarSync = async () => {
     setIsLoading(true);
     try {
-      await onSyncWithApple(appleCalendarUrl);
+      await onSyncWithApple();
       toast({
         title: "Connected to Apple Calendar",
         description: "Your bookings will now sync with Apple Calendar.",
       });
-      setAppleCalendarUrl('');
+      setActiveProvider('apple');
     } catch (error) {
       toast({
         title: "Failed to connect",
-        description: "Could not connect to Apple Calendar. Please check the URL and try again.",
+        description: "Could not connect to Apple Calendar. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -77,28 +77,29 @@ const CalendarSync: React.FC<CalendarSyncProps> = ({ onSyncWithGoogle, onSyncWit
             <p className="text-sm text-muted-foreground mb-4">
               Connect with Google Calendar to automatically sync your bookings and check for availability.
             </p>
-            <Button onClick={handleGoogleAuth} disabled={isLoading} className="w-full">
-              {isLoading ? 'Connecting...' : 'Connect with Google Calendar'}
+            <Button 
+              onClick={handleGoogleAuth} 
+              disabled={isLoading} 
+              className="w-full"
+              variant={activeProvider === 'google' ? "default" : "outline"}
+            >
+              {isLoading && activeProvider === 'google' ? 'Connecting...' : 
+                activeProvider === 'google' ? 'Connected to Google Calendar' : 'Connect with Google Calendar'}
             </Button>
           </TabsContent>
           <TabsContent value="apple" className="pt-4">
             <p className="text-sm text-muted-foreground mb-4">
-              Enter your Apple Calendar URL to sync your bookings with Apple Calendar.
+              Connect with Apple Calendar to automatically sync your bookings. You'll need to authorize the calendar integration.
             </p>
-            <div className="space-y-4">
-              <Input 
-                placeholder="https://calendar.apple.com/..."
-                value={appleCalendarUrl}
-                onChange={(e) => setAppleCalendarUrl(e.target.value)}
-              />
-              <Button 
-                onClick={handleAppleCalendarSync} 
-                disabled={isLoading || !appleCalendarUrl} 
-                className="w-full"
-              >
-                {isLoading ? 'Connecting...' : 'Connect with Apple Calendar'}
-              </Button>
-            </div>
+            <Button 
+              onClick={handleAppleCalendarSync} 
+              disabled={isLoading} 
+              className="w-full"
+              variant={activeProvider === 'apple' ? "default" : "outline"}
+            >
+              {isLoading && activeProvider === 'apple' ? 'Connecting...' : 
+                activeProvider === 'apple' ? 'Connected to Apple Calendar' : 'Connect with Apple Calendar'}
+            </Button>
           </TabsContent>
         </Tabs>
       </CardContent>

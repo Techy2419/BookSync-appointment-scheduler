@@ -155,9 +155,10 @@ const Index = () => {
   };
   
   // Handle Google Calendar sync
-  const handleSyncWithGoogle = async (authCode?: string) => {
+  const handleSyncWithGoogle = async () => {
     try {
-      const success = await calendarService.connect('google', authCode);
+      // In a real implementation, this would trigger the OAuth flow
+      const success = await calendarService.connect('google');
       setIsCalendarConnected(success);
       return Promise.resolve();
     } catch (error) {
@@ -167,9 +168,10 @@ const Index = () => {
   };
   
   // Handle Apple Calendar sync
-  const handleSyncWithApple = async (calendarUrl: string) => {
+  const handleSyncWithApple = async () => {
     try {
-      const success = await calendarService.connect('apple', calendarUrl);
+      // In a real implementation, this would trigger the Apple Calendar authorization flow
+      const success = await calendarService.connect('apple');
       setIsCalendarConnected(success);
       return Promise.resolve();
     } catch (error) {

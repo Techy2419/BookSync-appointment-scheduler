@@ -75,10 +75,12 @@ class MockCalendarService implements CalendarService {
     for (let hour = startHour; hour < endHour; hour++) {
       // Add some time slots, simulating a busy calendar with some availability
       if (Math.random() > 0.6) {
-        times.push(`${hour}:00 ${hour < 12 ? 'AM' : 'PM'}`);
+        const formattedHour = hour > 12 ? hour - 12 : hour;
+        times.push(`${formattedHour}:00 ${hour < 12 ? 'AM' : 'PM'}`);
       }
       if (Math.random() > 0.6) {
-        times.push(`${hour}:30 ${hour < 12 ? 'AM' : 'PM'}`);
+        const formattedHour = hour > 12 ? hour - 12 : hour;
+        times.push(`${formattedHour}:30 ${hour < 12 ? 'AM' : 'PM'}`);
       }
     }
     
