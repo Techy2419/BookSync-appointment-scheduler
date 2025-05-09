@@ -58,15 +58,22 @@ export const getBookings = async () => {
 export const updateBooking = async (id: string, updatedBooking: Partial<Booking>) => {
   const bookingRef = doc(db, 'bookings', id);
   
-  // Convert Date to Timestamp for Firebase if it exists
-  const bookingData: Partial<FirestoreBooking> = { ...updatedBooking };
+  // Create a new object for the Firestore update
+  const firestoreBookingData: Partial<FirestoreBooking> = {};
   
-  // Check if date exists before converting to Timestamp
-  if (bookingData.date instanceof Date) {
-    bookingData.date = Timestamp.fromDate(bookingData.date);
+  // Copy all fields except date (which needs special handling)
+  if (updatedBooking.time !== undefined) firestoreBookingData.time = updatedBooking.time;
+  if (updatedBooking.name !== undefined) firestoreBookingData.name = updatedBooking.name;
+  if (updatedBooking.email !== undefined) firestoreBookingData.email = updatedBooking.email;
+  if (updatedBooking.meetingType !== undefined) firestoreBookingData.meetingType = updatedBooking.meetingType;
+  if (updatedBooking.notes !== undefined) firestoreBookingData.notes = updatedBooking.notes;
+  
+  // Handle date conversion separately
+  if (updatedBooking.date instanceof Date) {
+    firestoreBookingData.date = Timestamp.fromDate(updatedBooking.date);
   }
   
-  await updateDoc(bookingRef, bookingData);
+  await updateDoc(bookingRef, firestoreBookingData);
 };
 
 export const deleteBooking = async (id: string) => {
