@@ -48,7 +48,9 @@ export const updateBooking = async (id: string, updatedBooking: Partial<Booking>
   
   // Convert Date to Timestamp for Firebase
   const bookingData = { ...updatedBooking };
-  if (bookingData.date) {
+  
+  // Check if date exists before converting to Timestamp
+  if (bookingData.date instanceof Date) {
     bookingData.date = Timestamp.fromDate(bookingData.date);
   }
   
