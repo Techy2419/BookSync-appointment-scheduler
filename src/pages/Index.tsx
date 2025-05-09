@@ -170,7 +170,8 @@ const Index = () => {
   // Handle Apple Calendar sync
   const handleSyncWithApple = async () => {
     try {
-      // In a real implementation, this would trigger the Apple Calendar authorization flow
+      // This will now only set the calendar provider to 'apple'
+      // Without requiring an actual API connection
       const success = await calendarService.connect('apple');
       setIsCalendarConnected(success);
       return Promise.resolve();
@@ -187,6 +188,7 @@ const Index = () => {
     const startDateTime = combineDateAndTime(bookingDetails.date, bookingDetails.time);
     const endDateTime = new Date(startDateTime.getTime() + bookingDetails.meetingType.duration * 60000);
     
+    // Use the explicitly selected calendar provider
     if (calendarService.provider === 'google') {
       // Open Google Calendar in a new tab
       const googleUrl = createGoogleCalendarUrl(
@@ -196,8 +198,17 @@ const Index = () => {
         endDateTime
       );
       window.open(googleUrl, '_blank');
+    } else if (calendarService.provider === 'apple') {
+      // Generate and download ICS file for Apple Calendar
+      const icsContent = generateIcsFile(
+        `Meeting: ${bookingDetails.meetingType.name}`,
+        bookingDetails.notes || `Meeting with ${bookingDetails.name}`,
+        startDateTime,
+        bookingDetails.meetingType.duration
+      );
+      downloadIcsFile(icsContent, 'apple-calendar-event.ics');
     } else {
-      // Generate and download ICS file for Apple Calendar or if no calendar is connected
+      // If no calendar is connected, default to ICS download
       const icsContent = generateIcsFile(
         `Meeting: ${bookingDetails.meetingType.name}`,
         bookingDetails.notes || `Meeting with ${bookingDetails.name}`,
